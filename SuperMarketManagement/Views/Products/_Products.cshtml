@@ -1,0 +1,26 @@
+﻿@model List<SuperMarketManagement.Models.Product>
+
+
+@if (Model != null)
+{
+	<table class="table table-bordered table-striped">
+		<thead>
+		<tr>
+			<th class="text-center">Products</th>
+			<th class="text-center">Quantity</th>
+		</tr>
+		</thead>
+		<tbody>
+		@foreach (var p in Model)
+		{
+			<tr class="product-row" data-product-id="@p.Id">
+				<td class="text-center">@p.Name</td>
+				<td class="text-center">@p.Quantity</td>
+			</tr>
+		}
+		
+		
+		
+		</tbody>
+	</table>
+}

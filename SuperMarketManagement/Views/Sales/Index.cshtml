@@ -1,0 +1,67 @@
+﻿@model SuperMarketManagement.ViewModel.SalesViewModel
+
+<style>
+		.bg-warning {
+			background-color: yellow !important; /* Use Bootstrap's warning color */
+		}
+</style>
+
+
+
+<div class="row">
+	<div class="col-7"><h3>Cashiers Console</h3> </div>
+	<div class="col-2"><label for="Cashire">Cashire:</label></div>
+	<div class="col-2">display name here</div>
+</div>
+
+<br />
+
+<div calss="row">
+	<div class="col-4">
+		<select asp-for="@Model.SelectedCategoryId" class="form-control">
+			<option>- Please Select -</option>
+			@foreach (var c in Model.Categories)
+			{
+				<option value="@c.Id">@c.Name</option>
+			}
+		</select>
+		<br />
+		
+		<div id="partialproducts">
+
+		</div>
+		
+		<br />
+		
+		<div id="selectedproducts">
+
+		</div>
+	</div>
+	<div class="col"></div>
+</div>
+
+@section Scripts
+{
+	<script>
+		$(function () {
+			$("#SelectedCategoryId").on("change", function () {
+				$("#partialproducts").load("/products/ProductsByCategoryPartial", { Id: $(this).val() });
+				$("#selectedproducts").html("");
+			})
+
+			$("#partialproducts").on("click", ".product-row", function () {
+				// Remove yellow class from any previously selected row
+				$(".product-row").removeClass("bg-warning");
+
+				// Add yellow class to the clicked row
+				$(this).addClass("bg-warning");
+
+				var productId = $(this).data("product-id");
+
+				$("#selectedproducts").load("/products/ProductInfo", { Id: productId })
+			});
+
+			
+		})
+	</script>
+}
