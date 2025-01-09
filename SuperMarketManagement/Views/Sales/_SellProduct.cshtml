@@ -1,0 +1,23 @@
+﻿@model Product
+
+@*
+	For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@if (Model != null)
+{
+	<form asp-controller="Products" asp-action="Edit" method="post" class="mb-4">
+		<div class="form-group mb-3">
+			<label asp-for="Name" class="form-label"></label>
+			<input asp-for="Name" class="form-control" required readonly/>
+			<span asp-validation-for="Name" class="text-danger"></span>
+		</div>
+		<div class="form-group mb-3">
+			<label asp-for="Price" class="form-label"></label>
+			<input asp-for="Price" type="text" class="form-control" value="@String.Format("{0:C}", Model.Price)" readonly required/>
+			<span asp-validation-for="Price" class="text-danger"></span>
+		</div>
+	</form>
+}  

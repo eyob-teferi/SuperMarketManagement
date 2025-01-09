@@ -1,53 +1,67 @@
 ﻿@model SuperMarketManagement.ViewModel.SalesViewModel
 
+
+
 <style>
-		.bg-warning {
-			background-color: yellow !important; /* Use Bootstrap's warning color */
-		}
+	.bg-warning {
+		background-color: yellow !important; /* Use Bootstrap's warning color */
+	}
 </style>
 
-
-
 <div class="row">
-	<div class="col-7"><h3>Cashiers Console</h3> </div>
+	<div class="col-7"><h3>Cashiers Console</h3></div>
 	<div class="col-2"><label for="Cashire">Cashire:</label></div>
 	<div class="col-2">display name here</div>
 </div>
 
 <br />
 
-<div calss="row">
+<!-- Corrected class name -->
+<div class="row">
 	<div class="col-4">
-		<select asp-for="@Model.SelectedCategoryId" class="form-control">
+		<span asp-validation-for="QuantityToSell" class="text-danger"></span>
+		<select asp-for="SelectedCategoryId" class="form-control">
 			<option>- Please Select -</option>
 			@foreach (var c in Model.Categories)
 			{
 				<option value="@c.Id">@c.Name</option>
 			}
 		</select>
-		<br />
-		
-		<div id="partialproducts">
+		<br/>
 
-		</div>
-		
-		<br />
-		
-		<div id="selectedproducts">
+		<div id="partialproducts"></div>
+		<br/>
+		<div id="selectedproducts"></div>
 
-		</div>
+		<form asp-controller="Sales" asp-action="Sell" method="post" class="mb-4" id="sellfrom">
+			<input type="hidden" asp-for="SelectedProductId"/>
+			<div class="form-group mb-3">
+				<label asp-for="QuantityToSell" class="form-label"></label>
+				<input asp-for="QuantityToSell" type="number" class="form-control" required/>
+			</div>
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</form>
 	</div>
-	<div class="col"></div>
+	<div class="col">
+		@await Component.InvokeAsync("Transactions","Cashier1")
+	</div>
 </div>
 
 @section Scripts
 {
 	<script>
 		$(function () {
+			$("#sellfrom").hide(); // Initially hide the form
+			var selectedCategoryId = $("#SelectedCategoryId").val();
+
+			if (selectedCategoryId > 0) {
+				loadProducts(selectedCategoryId);
+			}
 			$("#SelectedCategoryId").on("change", function () {
 				$("#partialproducts").load("/products/ProductsByCategoryPartial", { Id: $(this).val() });
 				$("#selectedproducts").html("");
-			})
+				$("#sellfrom").hide(); // Hide the form when the category changes
+			});
 
 			$("#partialproducts").on("click", ".product-row", function () {
 				// Remove yellow class from any previously selected row
@@ -57,11 +71,20 @@
 				$(this).addClass("bg-warning");
 
 				var productId = $(this).data("product-id");
+				$("#selectedproducts").load("/sales/SellProduct", { Id: productId });
 
-				$("#selectedproducts").load("/products/ProductInfo", { Id: productId })
+				if (productId > 0) {
+					$("#SelectedProductId").val(productId);
+					$("#sellfrom").show(); // Show the form if a valid product is selected
+				} else {
+					$("#sellfrom").hide(); // Hide the form if no valid product is selected
+				}
 			});
+		});
 
-			
-		})
+		function loadProducts(selectedCategoryId) {
+			$("#partialproducts").load("/products/ProductsByCategoryPartial", { Id: selectedCategoryId });
+			$("#sellfrom").hide();
+		}
 	</script>
 }

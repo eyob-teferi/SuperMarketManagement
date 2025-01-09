@@ -22,7 +22,9 @@ namespace SuperMarketManagement.Data
 		public static void Create(Product product)
 		{
 			if (product == null) throw new ArgumentNullException(nameof(product));
+
 			product.Id = _products.Count > 0 ? _products.Max(p => p.Id) + 1 : 1;
+
 			_products.Add(product);
 		}
 

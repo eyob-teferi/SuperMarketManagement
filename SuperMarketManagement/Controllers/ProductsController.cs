@@ -104,10 +104,6 @@ namespace SuperMarketManagement.Controllers
 			return PartialView("_Products", products);
 		}
 
-		public IActionResult ProductInfo(int Id)
-		{
-			var product = ProductsRepo.GetProductById(Id);
-			return PartialView("_SelectedProduct", product);
-		}
+	
 	}
 }
