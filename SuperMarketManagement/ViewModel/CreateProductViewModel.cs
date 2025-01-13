@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using SuperMarketManagement.Models;
+using CoreBusiness;
+
 
 namespace SuperMarketManagement.ViewModel
 {
@@ -8,12 +9,14 @@ namespace SuperMarketManagement.ViewModel
 		[Required]
 		public string Name { get; set; }
 		[Required]
+
+		[Display(Name = "Category")]
 		public int CategoryId { get; set; }
 		[Required]
 		public double Price { get; set; }
 		[Required]
 		public int Quantity { get; set; }
 
-		public List<Category>? Categories { get; set; } // List of categories for the dropdown
+		public IEnumerable<Category>? Categories { get; set; } // List of categories for the dropdown
 	}
 }

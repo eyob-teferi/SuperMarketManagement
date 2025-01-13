@@ -15,9 +15,50 @@ namespace SuperMarketManagement.Data
 		};
 
 
-		public static List<Product> GetProducts()
+		public static IEnumerable<Product> GetProducts(bool loadCategory = false)
 		{
-			return _products;
+			if (!loadCategory)
+			{
+				return _products;
+			}
+			else
+			{
+				if (_products != null && _products.Count > 0)
+				{
+					_products.ForEach(x =>
+					{
+						if (x.CategoryId != 0)
+							x.Category = CategoriesRepo.GetCategoryById(x.CategoryId);
+					});
+				}
+
+				return _products ?? new List<Product>();
+			}
+		}
+
+		public static Product? GetProductById(int productId, bool loadCategory = false)
+		{
+			var product = _products.FirstOrDefault(x => x.Id == productId);
+			if (product != null)
+			{
+				var prod = new Product
+				{
+					Id = product.Id,
+					Name = product.Name,
+					Quantity = product.Quantity,
+					Price = product.Price,
+					CategoryId = product.CategoryId
+				};
+
+				if (loadCategory )
+				{
+					prod.Category = CategoriesRepo.GetCategoryById(prod.CategoryId);
+				}
+
+				return prod;
+			}
+
+			return null;
 		}
 		public static void Create(Product product)
 		{
@@ -52,17 +93,7 @@ namespace SuperMarketManagement.Data
 			}
 		}
 
-		public static List<ProductViewModel> GetProductsWithCategoryNames()
-		{
-			return _products.Select(p => new ProductViewModel
-			{
-				Id = p.Id,
-				Name = p.Name,
-				CategoryName = CategoriesRepo.GetCategories().FirstOrDefault(c => c.Id == p.CategoryId)?.Name ?? "Unknown",
-				Price = p.Price,
-				Quantity = p.Quantity
-			}).ToList();
-		}
+		
 
 		public static List<Product> GetProductsByCategory(int Id)
 		{

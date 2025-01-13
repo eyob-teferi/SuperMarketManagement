@@ -1,15 +1,43 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SuperMarketManagement.Data;
-using SuperMarketManagement.Models;
+using CoreBusiness;
 using SuperMarketManagement.ViewModel;
+using UseCases.Interfaces;
+using UseCases.ProductUseCases;
 
 namespace SuperMarketManagement.Controllers
 {
 	public class ProductsController : Controller
 	{
+		private readonly IViewProductsUseCase _viewProductsUseCase;
+		private readonly IViewCategoriesUseCase _viewCategoriesUseCase;
+		private readonly IAddProductUseCase _addProductUseCase;
+		private readonly IDeleteProductUseCase _deleteProductUseCase;
+		private readonly IEditProductUseCase _editProductUseCase;
+		private readonly IViewProductsByCategoryUseCase _viewProductsByCategoryUseCase;
+		private readonly IViewSelectedProductUseCase _viewSelectedProductUseCase;
+
+		public ProductsController(
+			IViewProductsUseCase viewProductsUseCase,
+			IViewCategoriesUseCase viewCategoriesUseCase,
+			IAddProductUseCase addProductUseCase,
+			IDeleteProductUseCase deleteProductUseCase,
+			IEditProductUseCase editProductUseCase,
+			IViewProductsByCategoryUseCase viewProductsByCategoryUseCase,
+			IViewSelectedProductUseCase viewSelectedProductUseCase
+			)
+		{
+			_viewProductsUseCase = viewProductsUseCase;
+			_viewCategoriesUseCase = viewCategoriesUseCase;
+			_addProductUseCase = addProductUseCase;
+			_deleteProductUseCase = deleteProductUseCase;
+			_editProductUseCase = editProductUseCase;
+			_viewProductsByCategoryUseCase = viewProductsByCategoryUseCase;
+			_viewSelectedProductUseCase = viewSelectedProductUseCase;
+		}
 		public IActionResult Index()
 		{
-			var products = ProductsRepo.GetProductsWithCategoryNames();
+			var products = _viewProductsUseCase.Execute(loadCategory:true);
 			return View(products);
 		}
 
@@ -17,7 +45,7 @@ namespace SuperMarketManagement.Controllers
 		{
 			var model = new CreateProductViewModel
 			{
-				Categories = CategoriesRepo.GetCategories() // Assuming this is your list of categories
+				Categories = _viewCategoriesUseCase.Execute()// Assuming this is your list of categories
 			};
 			return View(model);
 			
@@ -36,18 +64,18 @@ namespace SuperMarketManagement.Controllers
 					CategoryId = product.CategoryId
 				};
 
-				ProductsRepo.Create(newProduct);
+				_addProductUseCase.Execute(newProduct);
 				return RedirectToAction(nameof(Index));
 			}
 
-			product.Categories=CategoriesRepo.GetCategories();
+			product.Categories= _viewCategoriesUseCase.Execute();
 			return View(product);
 		}
 
 		[HttpGet]
 		public IActionResult Edit(int Id)
 		{
-			var product = ProductsRepo.GetProducts().FirstOrDefault(p => p.Id == Id);
+			var product = _viewProductsUseCase.Execute().FirstOrDefault(p => p.Id == Id);
 			if (product != null)
 			{
 				var model = new CreateProductViewModel()
@@ -56,7 +84,7 @@ namespace SuperMarketManagement.Controllers
 					Quantity = product.Quantity,
 					Price = product.Price,
 					CategoryId = product.CategoryId,
-					Categories = CategoriesRepo.GetCategories()
+					Categories = _viewCategoriesUseCase.Execute()
 				};
 				return View(model);
 			}
@@ -67,8 +95,8 @@ namespace SuperMarketManagement.Controllers
 		[HttpPost]
 		public IActionResult Edit(int Id,CreateProductViewModel model)
 		{
-			model.Categories=CategoriesRepo.GetCategories();
-			if(ModelState.IsValid)
+			model.Categories= _viewCategoriesUseCase.Execute();
+			if (ModelState.IsValid)
 			{
 				var product = new Product()
 				{
@@ -79,7 +107,7 @@ namespace SuperMarketManagement.Controllers
 					Id = Id
 				};
 
-				ProductsRepo.UpdateProduct(product);
+				_editProductUseCase.Execute(product);
 				return RedirectToAction(nameof(Index));
 			}
 
@@ -91,7 +119,7 @@ namespace SuperMarketManagement.Controllers
 		{
 			if (Id != null)
 			{
-				ProductsRepo.DeleteProduct(Id);
+				_deleteProductUseCase.Execute(Id);
 				return RedirectToAction(nameof(Index));
 			}
 
@@ -100,7 +128,7 @@ namespace SuperMarketManagement.Controllers
 
 		public IActionResult ProductsByCategoryPartial(int Id)
 		{
-			var products = ProductsRepo.GetProductsByCategory(Id);
+			var products = _viewProductsByCategoryUseCase.Execute(Id);
 			return PartialView("_Products", products);
 		}
 

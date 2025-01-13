@@ -1,4 +1,6 @@
-﻿using SuperMarketManagement.Models;
+﻿using CoreBusiness;
+using SuperMarketManagement.Models;
+using Category = SuperMarketManagement.Models.Category;
 
 namespace SuperMarketManagement.Data
 {
@@ -42,6 +44,17 @@ namespace SuperMarketManagement.Data
 			{
 				_categories.Remove(categoryToRemove);
 			}
+		}
+
+		public static Category? GetCategoryById(int Id)
+		{
+			var category= _categories.FirstOrDefault(c => c.Id == Id);
+			if (category != null)
+			{
+				return category;
+			}
+
+			return null;
 		}
 	}
 }

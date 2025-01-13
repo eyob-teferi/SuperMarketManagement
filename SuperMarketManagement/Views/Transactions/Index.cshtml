@@ -57,12 +57,18 @@
 		</tbody>
 		<tfoot>
 		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
 			<td>
 				<b>Grand Total:</b>
 			</td>
 			<td >
 				<b>
-					@(string.Format("{0:c}",Model.Transactions.Sum(t=>t.Price * t.SoldQty)))
+					@(string.Format("{0:c}", Model.Transactions.Sum(t => t.Price * t.SoldQty)))
 				</b>
 			</td>
 		</tr>

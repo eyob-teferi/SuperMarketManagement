@@ -1,6 +1,6 @@
 ﻿
 @using Microsoft.AspNetCore.Mvc.TagHelpers
-@model List<SuperMarketManagement.ViewModel.ProductViewModel>
+@model IEnumerable<CoreBusiness.Product>
 
 @*
 	For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -27,7 +27,7 @@
 		{
 			<tr class="text-center">
 				<td>@p.Name</td>
-				<td>@p.CategoryName</td>
+				<td>@p.Category?.Name</td>
 				<td>$@p.Price</td>
 				<td>@p.Quantity</td>
 				<td>
