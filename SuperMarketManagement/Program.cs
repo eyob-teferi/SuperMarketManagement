@@ -12,8 +12,11 @@ using UseCases.ProductUseCases;
 using UseCases.TransactionUseCases;
 using CategoriesRepo = Plugins.Datastore.InMemory.CategoriesRepo;
 using ProductsRepo = Plugins.Datastore.InMemory.ProductsRepo;
+using Microsoft.AspNetCore.Identity;
+using SuperMarketManagement.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("AccountContextConnection") ?? throw new InvalidOperationException("Connection string 'AccountContextConnection' not found.");
 
 var Configuration = builder.Configuration;
 // Add services to the container.
@@ -21,11 +24,23 @@ var Configuration = builder.Configuration;
 builder.Services.AddDbContext<MarketContext>(options =>
 	options.UseSqlServer(Configuration.GetConnectionString("MarketManagement")));
 
+builder.Services.AddDbContext<AccountContext>(options =>
+	options.UseSqlServer(Configuration.GetConnectionString("MarketManagement")));
 
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AccountContext>();
+
+builder.Services.AddAuthorization(options =>
+{
+	options.AddPolicy("Inventory", p=>p.RequireClaim("Department","Inventory"));
+	options.AddPolicy("Cashiers", p => p.RequireClaim("Department", "Cashiers"));
+});
+builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<ICategoriesRepo, CategoriesRepo>();
-builder.Services.AddSingleton<IProductsRepo, ProductsRepo>();
-builder.Services.AddSingleton<ITransactionsRepo,TransactionsRepo>();
+
+
+builder.Services.AddTransient<ICategoriesRepo, CategoriesSQLRepo>();
+builder.Services.AddTransient<IProductsRepo, ProductsSQLRepo>();
+builder.Services.AddTransient<ITransactionsRepo,TransactionSQLRepo>();
 
 builder.Services.AddTransient<IViewCategoriesUseCase, ViewCategoriesUseCase>();
 builder.Services.AddTransient<IAddCategoryUseCase, AddCategoryUseCase>();
@@ -51,9 +66,9 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+	app.UseExceptionHandler("/Home/Error");
+	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+	app.UseHsts();
 }
 
 app.UseHttpsRedirection();
@@ -61,10 +76,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
+app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapRazorPages();
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+	name: "default",
+	pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

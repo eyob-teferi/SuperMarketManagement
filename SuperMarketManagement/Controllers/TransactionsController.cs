@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SuperMarketManagement.Data;
 using SuperMarketManagement.ViewModel;
 using UseCases.Interfaces;
 
 namespace SuperMarketManagement.Controllers
 {
+	[Authorize]
 	public class TransactionsController:Controller
 	{
 		private readonly ISearchTransactionUseCase _searchTransactionUseCase;

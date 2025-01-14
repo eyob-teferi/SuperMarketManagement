@@ -4,9 +4,11 @@ using CoreBusiness;
 using SuperMarketManagement.ViewModel;
 using UseCases.Interfaces;
 using UseCases.ProductUseCases;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SuperMarketManagement.Controllers
 {
+	[Authorize(Policy = "Inventory")]
 	public class ProductsController : Controller
 	{
 		private readonly IViewProductsUseCase _viewProductsUseCase;
@@ -14,7 +16,6 @@ namespace SuperMarketManagement.Controllers
 		private readonly IAddProductUseCase _addProductUseCase;
 		private readonly IDeleteProductUseCase _deleteProductUseCase;
 		private readonly IEditProductUseCase _editProductUseCase;
-		private readonly IViewProductsByCategoryUseCase _viewProductsByCategoryUseCase;
 		private readonly IViewSelectedProductUseCase _viewSelectedProductUseCase;
 
 		public ProductsController(
@@ -23,7 +24,6 @@ namespace SuperMarketManagement.Controllers
 			IAddProductUseCase addProductUseCase,
 			IDeleteProductUseCase deleteProductUseCase,
 			IEditProductUseCase editProductUseCase,
-			IViewProductsByCategoryUseCase viewProductsByCategoryUseCase,
 			IViewSelectedProductUseCase viewSelectedProductUseCase
 			)
 		{
@@ -32,7 +32,6 @@ namespace SuperMarketManagement.Controllers
 			_addProductUseCase = addProductUseCase;
 			_deleteProductUseCase = deleteProductUseCase;
 			_editProductUseCase = editProductUseCase;
-			_viewProductsByCategoryUseCase = viewProductsByCategoryUseCase;
 			_viewSelectedProductUseCase = viewSelectedProductUseCase;
 		}
 		public IActionResult Index()
@@ -126,11 +125,7 @@ namespace SuperMarketManagement.Controllers
 			return View(nameof(Index));
 		}
 
-		public IActionResult ProductsByCategoryPartial(int Id)
-		{
-			var products = _viewProductsByCategoryUseCase.Execute(Id);
-			return PartialView("_Products", products);
-		}
+		
 
 	
 	}

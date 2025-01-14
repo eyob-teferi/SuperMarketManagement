@@ -3,11 +3,13 @@ using SuperMarketManagement.Data;
 using SuperMarketManagement.Models;
 using UseCases.Interfaces;
 using CoreBusiness;
+using Microsoft.AspNetCore.Authorization;
 using Category = CoreBusiness.Category;
 
 
 namespace SuperMarketManagement.Controllers
 {
+	[Authorize(Policy = "Inventory")]
 	public class CategoriesController : Controller
 	{
 		private readonly IViewCategoriesUseCase _viewCategoriesUseCase;

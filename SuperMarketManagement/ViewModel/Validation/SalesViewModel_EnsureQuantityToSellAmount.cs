@@ -1,29 +1,48 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using SuperMarketManagement.Data;
+using UseCases.Interfaces;
 
 namespace SuperMarketManagement.ViewModel.Validation
 {
-	public class SalesViewModel_EnsureQuantityToSellAmount:ValidationAttribute
+	public class SalesViewModel_EnsureQuantityToSellAmount : ValidationAttribute
 	{
 		protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
-
 		{
-			var QuantityToSell = (int)value;
+			// Ensure value is not null and is an integer
+			if (value == null || !(value is int QuantityToSell))
+			{
+				return new ValidationResult("Invalid quantity to sell.");
+			}
 
-			var SalesViewModel = validationContext.ObjectInstance as SalesViewModel;
+			var salesViewModel = validationContext.ObjectInstance as SalesViewModel;
 
-			if (SalesViewModel != null)
+			if (salesViewModel != null)
 			{
 				if (QuantityToSell <= 0)
 				{
-					return new ValidationResult("The Quantity to sell has to be greater than 0");
+					return new ValidationResult("The quantity to sell has to be greater than 0.");
 				}
 
-				var QunatityInStock = ProductsRepo.GetProductById(SalesViewModel.SelectedProductId).Quantity;
+				// Retrieve the use case from the service provider
+				var viewSelectedProductUseCase = (IViewSelectedProductUseCase)validationContext.GetService(typeof(IViewSelectedProductUseCase));
 
-				if (QunatityInStock < QuantityToSell)
+				if (viewSelectedProductUseCase == null)
 				{
-					return new ValidationResult("Not enough in Stock");
+					return new ValidationResult("Product service is not available.");
+				}
+
+				var product = viewSelectedProductUseCase.Execute(salesViewModel.SelectedProductId);
+
+				if (product == null)
+				{
+					return new ValidationResult("Selected product not found.");
+				}
+
+				var quantityInStock = product.Quantity;
+
+				if (quantityInStock < QuantityToSell)
+				{
+					return new ValidationResult("Not enough in stock.");
 				}
 			}
 

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using SuperMarketManagement.Data;
-using SuperMarketManagement.Models;
+using CoreBusiness;
 using SuperMarketManagement.ViewModel.Validation;
 
 namespace SuperMarketManagement.ViewModel
@@ -9,13 +9,13 @@ namespace SuperMarketManagement.ViewModel
 	public class SalesViewModel
 	{
 		public int SelectedCategoryId { get; set; }
-		public List<Category> Categories { get; set; } = CategoriesRepo.GetCategories();
+		public IEnumerable<Category>? Categories { get; set; }= Enumerable.Empty<Category>();
 		[Required]
 		public int  SelectedProductId { get; set; }
 
 		[DisplayName("Quantity")]
 		[Required]
-		[SalesViewModel_EnsureQuantityToSellAmount]
+	    [SalesViewModel_EnsureQuantityToSellAmount]
 		public int QuantityToSell { get; set; }
 	}
 }
